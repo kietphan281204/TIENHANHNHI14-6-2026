@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>có 4 phút thôi ní ráng làm xíu nhé</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #c5d818;
+      color: white;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      text-align: center
+    }
+
+    .timer {
+      position: sticky;
+      top: 0;
+      background: #facc15;
+      color: rgb(0, 0, 0);
+      padding: 10px;
+      text-align: center;
+      border-radius: 12px;
+      font-size: 20px;
+      margin-bottom: 16px;
+      z-index: 2;
+    }
+
+    .question {
+      background: #b86196;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+
+    .answers label {
+      display: block;
+      padding: 6px;
+      border-radius: 8px;
+      margin: 6px 0;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .correct {
+      background: #14532d !important;
+      color: #bbf7d0 !important
+    }
+
+    .wrong {
+      background: #7f1d1d !important;
+      color: #fecaca !important
+    }
+
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 26px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #4f46e5;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* ===== Ô NHẮN TIN ===== */
+    #messageBox {
+      background: #273449;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 10px;
+      border: 2px solid #4f46e5;
+    }
+
+    #messageBox p {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #facc15;
+      font-weight: bold;
+    }
+
+    #userMessage {
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 90px;
+      border-radius: 10px;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+      font-family: Arial, Helvetica, sans-serif;
+      resize: vertical;
+      background: #1e293b;
+      color: white;
+      outline: none;
+    }
+
+    #userMessage::placeholder {
+      color: #94a3b8;
+    }
+
+    #sendMsgBtn {
+      margin: 12px 0 0 0;
+      padding: 10px 24px;
+      font-size: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: white;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    #sendMsgBtn:hover {
+      background: #16a34a;
+    }
+
+    #sendMsgBtn:disabled {
+      background: #4b7a57;
+      cursor: not-allowed;
+    }
+
+    #sendStatus {
+      margin-top: 8px;
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    /* ===== TUYẾT RƠI ===== */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      user-select: none;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh);
+      }
+    }
+
+    /* ===== HIỆU ỨNG CLICK ===== */
+    @keyframes clickEffect {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-80px) scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 id="quizTitle">HÔM NAY TỪ 70 CÓ QUÀ CHO NÍ SAU KHI LÀM XONG ĐÚNG HẾT CHÚC NÍ MM </h1>
+
+    <div class="timer">
+      ⏱ Thời gian 6p cho ní chiến đấu kkk: <span id="time">00:00</span>
+    </div>
+
+    <div id="quiz"></div>
+
+    <button onclick="submitQuiz()">Nộp bài</button>
+
+    <!-- ===== Ô NHẮN TIN RIÊNG ===== -->
+    <div id="messageBox">
+      <p>Ní có muốn Gáy gì không nhờ hehe</p>
+      <textarea id="userMessage"
+        placeholder="ní gáy vài câu thì nhắn vô đây kk,à ní nghe phát am tiếng anh rỡ không á"></textarea>
+      <br>
+      <button id="sendMsgBtn" onclick="sendMessageOnly()"> Gửi lời nhắn</button>
+      <div id="sendStatus"></div>
+    </div>
+
+  </div>
+
+  <!-- NHẠC NỀN -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="nhac5.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    /* ===== DỮ LIỆU ===== */
+    let data = [
+      ["Able", "có thể"], ["Abandon", "bỏ"], ["About", "khoảng, về"], ["Above", "lên, trên"],
+      ["Act", "hành động"], ["Add", "thêm"], ["Afraid", "sợ"], ["After", "sau"], ["Again", "lại"],
+      ["Age", "tuổi"], ["Ago", "trước đây"], ["Agree", "đồng ý"], ["Air", "bầu không khí"],
+      ["All", "tất cả"], ["Allow", "cho phép"], ["Also", "cũng vậy"], ["Always", "luôn luôn"],
+      ["Among", "ở giữa"], ["And", "và"], ["Anger", "tức giận"], ["Animal", "động vật"],
+      ["Answer", "câu trả lời"], ["Appear", "xuất hiện"], ["Apple", "quả táo"],
+      ["Area", "diện tích khu vực"], ["Arrange", "sắp xếp"], ["arrive", "đến"], ["art", "nghệ thuật"],
+      ["baby", "em be"], ["back", "trở lại"], ["bank", "bờ"], ["bad", "xấu xa"], ["ball", "quả bóng"],
+      ["basic", "nền tảng"], ["beauty", "vẻ đẹp"], ["best", "tốt nhất"], ["believe", "tin tưởng"],
+      ["befor", "đằng trước"], ["behind", "đằng sau"], ["bed", "cái giường"], ["blood", "máu"],
+      ["begin", "bắt đầu"], ["big", "to lớn"], ["be", "thì là "], ["busy", "bận"], ["but", "nhưng"],
+      ["box", "hộp,thùng"], ["bought", "mua"], ["bread", "bánh mì"],
+      ["brothers", "anh trai em trai em gai"], ["both", "cả hai"], ["boat", "thuyền"], ["burn", "đốt cháy"], ["call", "gọi"],
+      ["chance", "sự may rủi"], ["camp", "trại"], ["car", "xe hoi"], ["capital", "thủ đô"], ["care", "sự chăm sóc"],
+      ["card", "thẻ thiệp"], ["chair", "cái ghế"], ["cretain", "chắc chắn",], ["check", "kiểm tra"], ["cat", "con mèo"],
+      ["catch", "nắm lấy"], ["circle", "vòng tròn"], ["Chicken", "con gà"], ["character", "tính cách"],
+      ["choose", "lựa chọn"], ["climb", "leo trèo "], ["clothes", "quần áo"], ["cloud", "đám mây"],["claim","khẳng định"],
+      ["clean","sạch sẽ"],
+
+    ];
+
+    /* Lưu kết quả để gửi kèm lời nhắn */
+    let quizScore = null;
+    let quizTotal = null;
+    let quizMessage = "";
+
+    /* MAP nghĩa Việt → từ Anh */
+    const viToEn = {};
+    data.forEach(pair => { viToEn[pair[1]] = pair[0]; });
+
+    /* ===== TTS TỐI ƯU CHO MOBILE ===== */
+    let cachedVoice = null;
+    let ttsWarmedUp = false;
+
+    function initVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        cachedVoice = voices.find(v =>
+          v.lang.startsWith("en") && (v.lang.includes("US") || v.lang.includes("GB"))
+        ) || voices.find(v => v.lang.startsWith("en")) || null;
+      }
+    }
+    initVoices();
+    window.speechSynthesis.onvoiceschanged = initVoices;
+
+    /* Warm up — đánh thức engine âm thanh trên iOS/Android lần đầu chạm */
+    function warmUpTTS() {
+      if (ttsWarmedUp || !window.speechSynthesis) return;
+      ttsWarmedUp = true;
+      const u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }
+
+    function speakEnglish(word) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      /* setTimeout(50ms) sau cancel tránh bị block trên mobile */
+      setTimeout(() => {
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang = "en-US";
+        u.rate = 1.0;
+        u.pitch = 1.0;
+        u.volume = 1;
+        if (cachedVoice) u.voice = cachedVoice;
+        window.speechSynthesis.speak(u);
+      }, 50);
+    }
+
+    /* ===== TRỘN ===== */
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    data = shuffle(data);
+    const quiz = document.getElementById("quiz");
+
+    /* ===== TẠO CÂU HỎI ===== */
+    data.forEach((q, i) => {
+      const correct = q[1];
+      const wrong = shuffle(data.map(x => x[1]).filter(v => v !== correct)).slice(0, 3);
+      const answers = shuffle([correct, ...wrong]);
+      const div = document.createElement("div");
+      div.className = "question";
+      div.dataset.correct = correct;
+      div.innerHTML = `
+    <strong>Câu ${i + 1}: ${q[0]}</strong>
+    <div class="answers">
+      ${answers.map((a, j) => `
+        <label>
+          <input type="radio" name="q${i}" value="${a}">
+          ${String.fromCharCode(65 + j)}. ${a}
+        </label>`).join("")}
+    </div>`;
+      quiz.appendChild(div);
+    });
+
+    /* ===== PHÁT ÂM KHI CLICK — dùng pointerdown cho nhanh hơn trên mobile ===== */
+    document.querySelectorAll(".answers label").forEach(label => {
+      label.addEventListener("pointerdown", () => {
+        warmUpTTS();
+        const input = label.querySelector("input");
+        if (!input) return;
+        const en = viToEn[input.value];
+        if (en) speakEnglish(en);
+      });
+    });
+
+    /* ===== NHẠC NỀN ===== */
+    const bgMusic = document.getElementById("bgMusic");
+    let musicStarted = false;
+    document.addEventListener("change", e => {
+      if (e.target.type === "radio" && !musicStarted) {
+        bgMusic.volume = 0.15;
+        bgMusic.play();
+        musicStarted = true;
+      }
+    });
+
+    /* ===== ĐỒNG HỒ ===== */
+    const totalSeconds = 360; // 6 phút
+    let elapsed = 0; // bắt đầu từ 0 phút (đếm tăng từ 0 → 6)
+    let submitted = false;
+    const timeEl = document.getElementById("time");
+
+    timeEl.textContent = `${String(Math.floor(elapsed / 60)).padStart(2, "0")}:${String(elapsed % 60).padStart(2, "0")}`;
+
+    const timer = setInterval(() => {
+      const m = Math.floor(elapsed / 60);
+      const s = elapsed % 60;
+      timeEl.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      if (elapsed >= totalSeconds) {
+        clearInterval(timer);
+        if (!submitted) { alert("⏰ Hết giờ!"); submitQuiz(); }
+      }
+      elapsed++;
+    }, 1000);
+
+    /* ===== NỘP BÀI ===== */
+    function submitQuiz() {
+      if (submitted) return;
+      submitted = true;
+      clearInterval(timer);
+      bgMusic.pause(); bgMusic.currentTime = 0;
+      window.speechSynthesis.cancel();
+
+      let score = 0;
+      document.querySelectorAll(".question").forEach(q => {
+        const correct = q.dataset.correct;
+        const chosen = q.querySelector("input:checked");
+        q.querySelectorAll("label").forEach(lb => {
+          if (lb.querySelector("input").value === correct) lb.classList.add("correct");
+        });
+        if (chosen) {
+          if (chosen.value === correct) score++;
+          else chosen.parentElement.classList.add("wrong");
+        }
+      });
+      document.querySelectorAll("input[type=radio]").forEach(i => i.disabled = true);
+
+      const total = data.length;
+      const pct = Math.floor((score / total) * 100);
+      let msg = "";
+      if (score === total) msg = "🏆 Nhi thật tuyệt vời quá 10 điểm gót chóp năm bờ vang!";
+      else if (pct >= 83) msg = "👏 Nhi giỏi quá!";
+      else if (pct >= 67) msg = "🤔 Quên rồi chứ gì!";
+      else if (pct >= 50) msg = "😢 Nhi làm tôi buồn hen!";
+      else msg = "😴 Cố gắng hơn nhé!";
+
+      quizScore = score; quizTotal = total; quizMessage = msg;
+
+      alert("🎯 KẾT QUẢ NHI È\n\n✅ Đúng: " + score + " / " + total + " câu\n\n" + msg);
+
+      sendToFormspree(score, total, msg, "");
+    }
+
+    /* ===== GỬI LỜI NHẮN RIÊNG (nút riêng) ===== */
+    function sendMessageOnly() {
+      const note = document.getElementById("userMessage").value.trim();
+      const statusEl = document.getElementById("sendStatus");
+      const btn = document.getElementById("sendMsgBtn");
+
+      if (!note) {
+        statusEl.style.color = "#fca5a5";
+        statusEl.textContent = " Bạn chưa gõ nội dung gì hết!";
+        return;
+      }
+
+      statusEl.style.color = "#facc15";
+      statusEl.textContent = " Đang gửi...";
+      btn.disabled = true;
+
+      const scoreText = quizScore !== null
+        ? `✅ Đúng: ${quizScore}/${quizTotal} câu (${Math.floor((quizScore / quizTotal) * 100)}%) — ${quizMessage}`
+        : "(Chưa nộp bài)";
+
+      const payload = {
+        _to: "kietphan28122004@gmail.com",
+        _subject: "💌 Lời nhắn từ Nhi",
+        loi_nhan: note,
+        ket_qua_quiz: scoreText,
+        date: new Date().toLocaleString('vi-VN')
+      };
+
+      fetch("https://formspree.io/f/xrepvazp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(res => {
+          if (res.ok) {
+            statusEl.style.color = "#86efac";
+            statusEl.textContent = "✅ Đã gửi lời nhắn thành công rồi nha!";
+            document.getElementById("userMessage").value = "";
+          } else throw new Error();
+        })
+        .catch(() => {
+          const sub = encodeURIComponent("💌 Lời nhắn từ Nhi");
+          const body = encodeURIComponent(`Lời nhắn:\n${note}\n\nKết quả quiz:\n${scoreText}\n\nNgày: ${new Date().toLocaleString('vi-VN')}`);
+          window.location.href = `mailto:kietphan28122004@gmail.com?subject=${sub}&body=${body}`;
+          statusEl.style.color = "#facc15";
+          statusEl.textContent = "📧 Mở ứng dụng email để gửi nhé!";
+        })
+        .finally(() => { btn.disabled = false; });
+    }
+
+    /* ===== GỬI KẾT QUẢ QUA FORMSPREE ===== */
+    function sendToFormspree(score, total, message, note) {
+      const payload = {
+        _to: "kietphan28122004@gmail.com",
+        _subject: `🎯 Kết quả Quiz: ${score}/${total} câu đúng`,
+        score, total,
+        percentage: Math.floor((score / total) * 100),
+        message,
+        loi_nhan: note || "(chưa gửi lời nhắn)",
+        date: new Date().toLocaleString('vi-VN'),
+        time_spent: (function () {
+          const secondsSpent = Math.min(typeof elapsed !== 'undefined' ? elapsed : 0, typeof totalSeconds !== 'undefined' ? totalSeconds : 0);
+          return Math.floor(secondsSpent / 60) + " phút " + (secondsSpent % 60) + " giây";
+        })()
+      };
+      fetch("https://formspree.io/f/xrepvazp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(res => { if (res.ok) console.log('✅ Kết quả đã gửi!'); })
+        .catch(err => {
+          console.log('❌ Lỗi:', err);
+          const sub = encodeURIComponent(`🎯 Kết quả Quiz: ${score}/${total} câu đúng`);
+          const body = encodeURIComponent(`✅ Đúng: ${score}/${total} câu\n📊 ${Math.floor((score / total) * 100)}%\n⏱️ ${Math.floor(Math.min(typeof elapsed !== 'undefined' ? elapsed : 0, typeof totalSeconds !== 'undefined' ? totalSeconds : 0) / 60)} phút\n📅 ${new Date().toLocaleString('vi-VN')}\n\n${message}`);
+          window.location.href = `mailto:kietphan28122004@gmail.com?subject=${sub}&body=${body}`;
+        });
+    }
+
+    /* ===== TUYẾT RƠI ===== */
+    function createSnowflake() {
+      const s = document.createElement("div");
+      s.className = "snowflake"; s.innerHTML = "❄";
+      s.style.left = Math.random() * 100 + "%";
+      s.style.animationDuration = Math.random() * 3 + 2 + "s";
+      s.style.opacity = Math.random();
+      s.style.fontSize = Math.random() * 10 + 10 + "px";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 5000);
+    }
+    setInterval(createSnowflake, 200);
+
+    /* ===== HIỆU ỨNG CLICK ===== */
+    document.addEventListener("click", e => {
+      const emojis = ["❤️", "💖", "✨", "⭐", "🌟", "💫", "🎉", "🎊"];
+      const el = document.createElement("div");
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;font-size:24px;pointer-events:none;z-index:10000;animation:clickEffect 1s ease-out forwards`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    });
+  </script>
+</body>
+
+</html>

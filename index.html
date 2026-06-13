@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Nguyên Tố Hóa Học</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #04080f;
+            --panel: #0a1628;
+            --border: #1a3a5c;
+            --accent: #00d4ff;
+            --accent2: #ff6b35;
+            --success: #00ff88;
+            --error: #ff2244;
+            --text: #c8dff0;
+            --glow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 40px 40px;
+            }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: float linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) translateX(30px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            animation: fadeDown 0.8s ease both;
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            text-shadow: var(--glow);
+            text-transform: uppercase;
+        }
+
+        .header p {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: rgba(200, 223, 240, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        /* Element card display */
+        .element-display {
+            display: flex;
+            gap: 16px;
+            animation: fadeUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .element-card {
+            width: 90px;
+            height: 110px;
+            border: 1.5px solid var(--border);
+            background: var(--panel);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .element-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), transparent, var(--accent2));
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .element-card.lit::before {
+            opacity: 0.6;
+        }
+
+        .element-card.lit {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3), inset 0 0 15px rgba(0, 212, 255, 0.05);
+            border-color: var(--accent);
+        }
+
+        .element-card .number {
+            font-size: 0.7rem;
+            color: rgba(200, 223, 240, 0.4);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .element-card .symbol {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.7);
+            transition: all 0.3s;
+        }
+
+        .element-card .name {
+            font-size: 0.65rem;
+            color: rgba(200, 223, 240, 0.5);
+            text-align: center;
+        }
+
+        .element-card .valence {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent2);
+            font-weight: 700;
+        }
+
+        .element-card .label {
+            font-size: 0.55rem;
+            color: rgba(200, 223, 240, 0.35);
+            letter-spacing: 0.05em;
+        }
+
+        /* Lock panel */
+        .lock-panel {
+            background: var(--panel);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 36px 40px;
+            width: min(400px, 90vw);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+            animation: fadeUp 0.8s ease 0.4s both;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .lock-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 20%;
+            right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .lock-icon {
+            text-align: center;
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.9));
+            }
+        }
+
+        .instruction {
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(200, 223, 240, 0.5);
+            line-height: 1.6;
+            letter-spacing: 0.05em;
+        }
+
+        .inputs-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .input-label {
+            font-size: 0.65rem;
+            color: rgba(200, 223, 240, 0.4);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .code-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 12px 8px;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+        }
+
+        .code-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.25), inset 0 0 8px rgba(0, 212, 255, 0.05);
+        }
+
+        .code-input.correct {
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .code-input.wrong {
+            border-color: var(--error);
+            color: var(--error);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+            border: 1.5px solid var(--accent);
+            border-radius: 8px;
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .unlock-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .unlock-btn:active {
+            transform: translateY(0);
+        }
+
+        .status-msg {
+            text-align: center;
+            font-size: 0.8rem;
+            min-height: 20px;
+            letter-spacing: 0.08em;
+            transition: all 0.3s;
+        }
+
+        .status-msg.error {
+            color: var(--error);
+        }
+
+        .status-msg.success {
+            color: var(--success);
+        }
+
+        /* Success overlay */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .success-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 900;
+            color: var(--success);
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
+            letter-spacing: 0.2em;
+            animation: successPulse 0.8s ease infinite alternate;
+        }
+
+        @keyframes successPulse {
+            from {
+                text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            }
+
+            to {
+                text-shadow: 0 0 50px rgba(0, 255, 136, 1), 0 0 100px rgba(0, 255, 136, 0.3);
+            }
+        }
+
+        .redirect-msg {
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: rgba(200, 223, 240, 0.5);
+            letter-spacing: 0.1em;
+        }
+
+        .progress-bar {
+            margin-top: 24px;
+            width: 200px;
+            height: 2px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 2px;
+            width: 0%;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+            transition: width 2s linear;
+        }
+
+        /* Hint dots */
+        .hint-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s;
+        }
+
+        .dot.filled {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* Level progress */
+        .level-progress {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent);
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1> Bảng Nguyên Tố</h1>
+        </div>
+
+        <div class="level-progress" id="level-indicator">Cấp độ 1/3</div>
+
+        <!-- Element preview cards -->
+        <div class="element-display">
+            <div class="element-card" id="card-symbol">
+                <span class="number">Z</span>
+                <span class="symbol">?</span>
+                <span class="name">Nguyên tố</span>
+                <div class="label">KÍ HIỆU</div>
+            </div>
+            <div class="element-card" id="card-valence">
+                <span class="number">HOÁ TRỊ</span>
+                <span class="valence">?</span>
+                <span class="name">Hoá trị</span>
+                <div class="label">GIÁ TRỊ</div>
+            </div>
+            <div class="element-card" id="card-mass">
+                <span class="number">M</span>
+                <span class="symbol" style="font-size:1.6rem">?</span>
+                <span class="name">Nguyên tử khối</span>
+                <div class="label">KHỐI LƯỢNG</div>
+            </div>
+        </div>
+
+        <!-- Lock panel -->
+        <div class="lock-panel">
+            <div class="lock-icon"></div>
+
+            <p class="instruction">
+                Nhập thông tin của nguyên tố <strong style="color:var(--accent)" id="element-name">Hidro</strong><br>
+                <span id="element-note">LƯU Ý: Hóa trị Kí hiệu chữ i viết IN</span>
+            </p>
+
+            <div class="inputs-row">
+                <div class="input-group">
+                    <span class="input-label">Kí hiệu</span>
+                    <input class="code-input" id="inp-symbol" type="text" maxlength="2" placeholder="?"
+                        autocomplete="off" spellcheck="false">
+                </div>
+                <div class="input-group">
+                    <span class="input-label">Hoá trị</span>
+                    <input class="code-input" id="inp-valence" type="text" maxlength="5" placeholder="?"
+                        autocomplete="off" spellcheck="false">
+                </div>
+                <div class="input-group">
+                    <span class="input-label">NT khối</span>
+                    <input class="code-input" id="inp-mass" type="text" maxlength="3" placeholder="?" autocomplete="off"
+                        spellcheck="false">
+                </div>
+            </div>
+
+            <div class="hint-dots">
+                <div class="dot" id="dot-1"></div>
+                <div class="dot" id="dot-2"></div>
+                <div class="dot" id="dot-3"></div>
+            </div>
+
+            <button class="unlock-btn" onclick="checkCode()"> MỞ KHÓA</button>
+
+            <div class="status-msg" id="status"></div>
+        </div>
+    </div>
+
+    <!-- Success overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-text"> MỞ KHÓA THÀNH CÔNG</div>
+        <div class="redirect-msg">Đang chuyển đến trang tiếp theo...</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <script>
+        // Generate floating particles
+        const particleContainer = document.getElementById('particles');
+        for (let i = 0; i < 25; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (8 + Math.random() * 15) + 's';
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            p.style.width = p.style.height = (1 + Math.random() * 3) + 'px';
+            particleContainer.appendChild(p);
+        }
+
+        // Levels data
+        const ELEMENTS = [
+            { name: 'Hidro', symbol: 'H', valence: 'I', mass: '1', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Oxi', symbol: 'O', valence: 'II', mass: '16', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Natri', symbol: 'Na', valence: 'I', mass: '23', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Magie', symbol: 'Mg', valence: 'II', mass: '24', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Kali', symbol: 'K', valence: 'I', mass: '39', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Bạc', symbol: 'Ag', valence: 'I', mass: '108', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Canxi', symbol: 'Ca', valence: 'II', mass: '40', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Kẽm', symbol: 'Zn', valence: 'II', mass: '65', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Đồng', symbol: 'Cu', valence: 'I,II', mass: '64', note: 'LƯU Ý: Hóa trị Kí hiệu chữ I,II NHỚ PHẢY viết IN' },
+             { name: 'sắt', symbol: 'Fe', valence: 'II,III', mass: '56', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Nhôm', symbol: 'Al', valence: 'III', mass: '27', note: 'LƯU Ý: Hóa trị Kí hiệu chữ i viết IN' },
+            { name: 'Cacbon', symbol: 'C', valence: 'II,IV', mass: '12', note: 'LƯU Ý: Hóa trị Kí hiệu chữ I,II NHỚ PHẢY viết IN' },
+        ];
+
+        let currentLevel = 0;
+
+        const inputs = {
+            symbol: document.getElementById('inp-symbol'),
+            valence: document.getElementById('inp-valence'),
+            mass: document.getElementById('inp-mass'),
+        };
+
+        const dots = [
+            document.getElementById('dot-1'),
+            document.getElementById('dot-2'),
+            document.getElementById('dot-3'),
+        ];
+
+        function loadLevel() {
+            const el = ELEMENTS[currentLevel];
+            document.getElementById('element-name').textContent = el.name;
+            document.getElementById('element-note').textContent = el.note;
+            document.getElementById('level-indicator').textContent = `Cấp độ ${currentLevel + 1}/${ELEMENTS.length}`;
+
+            inputs.symbol.value = '';
+            inputs.valence.value = '';
+            inputs.mass.value = '';
+
+            document.getElementById('card-symbol').querySelector('.symbol').textContent = '?';
+            document.getElementById('card-valence').querySelector('.valence').textContent = '?';
+            document.getElementById('card-mass').querySelector('.symbol').textContent = '?';
+
+            document.getElementById('card-symbol').classList.remove('lit');
+            document.getElementById('card-valence').classList.remove('lit');
+            document.getElementById('card-mass').classList.remove('lit');
+
+            document.getElementById('status').textContent = '';
+            document.getElementById('status').className = 'status-msg';
+
+            updateDots();
+            inputs.symbol.focus();
+        }
+
+        // Live preview as user types
+        inputs.symbol.addEventListener('input', () => {
+            let v = inputs.symbol.value;
+            if (v.length > 0) {
+                // Capitalize first letter, lower rest (e.g., Na)
+                v = v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
+            }
+            inputs.symbol.value = v;
+            const card = document.getElementById('card-symbol');
+            card.querySelector('.symbol').textContent = v || '?';
+            card.classList.toggle('lit', v.length > 0);
+            updateDots();
+        });
+
+        inputs.valence.addEventListener('input', () => {
+            const v = inputs.valence.value.toUpperCase();
+            inputs.valence.value = v;
+            const card = document.getElementById('card-valence');
+            card.querySelector('.valence').textContent = v || '?';
+            card.classList.toggle('lit', v.length > 0);
+            updateDots();
+        });
+
+        inputs.mass.addEventListener('input', () => {
+            const card = document.getElementById('card-mass');
+            card.querySelector('.symbol').textContent = inputs.mass.value || '?';
+            card.classList.toggle('lit', inputs.mass.value.length > 0);
+            updateDots();
+        });
+
+        // Auto-advance between inputs
+        inputs.symbol.addEventListener('keydown', e => { if (e.key === 'Enter' || (inputs.symbol.value.length === 2 && e.key !== 'Backspace')) inputs.valence.focus(); });
+        inputs.valence.addEventListener('keydown', e => { if (e.key === 'Enter') inputs.mass.focus(); });
+        inputs.mass.addEventListener('keydown', e => { if (e.key === 'Enter') checkCode(); });
+
+        function updateDots() {
+            const vals = [inputs.symbol.value, inputs.valence.value, inputs.mass.value];
+            dots.forEach((dot, i) => dot.classList.toggle('filled', vals[i].length > 0));
+        }
+
+        function checkCode() {
+            const sym = inputs.symbol.value.trim();
+            const val = inputs.valence.value.trim().toUpperCase();
+            const mass = inputs.mass.value.trim();
+
+            const currentAns = ELEMENTS[currentLevel];
+
+            const symOk = sym === currentAns.symbol;
+            let valOk = false;
+            
+            if (currentAns.valence.includes(',')) {
+                // Xử lý linh hoạt mọi cách nhập: "II,III", "II III", "II, III", "II , III"
+                const normalizedVal = val.replace(/\s*,\s*/g, ',').replace(/\s+/g, ',');
+                valOk = normalizedVal === currentAns.valence;
+            } else {
+                valOk = val === currentAns.valence;
+            }
+            const massOk = mass === currentAns.mass;
+
+            // Visual feedback per field
+            setFieldState(inputs.symbol, symOk);
+            setFieldState(inputs.valence, valOk);
+            setFieldState(inputs.mass, massOk);
+
+            if (symOk && valOk && massOk) {
+                if (currentLevel < ELEMENTS.length - 1) {
+                    const status = document.getElementById('status');
+                    status.textContent = '✓ Chính xác! Đang tải cấp độ tiếp theo...';
+                    status.className = 'status-msg success';
+
+                    // Prevent multiple clicks
+                    document.querySelector('.unlock-btn').disabled = true;
+
+                    setTimeout(() => {
+                        currentLevel++;
+                        loadLevel();
+                        document.querySelector('.unlock-btn').disabled = false;
+                    }, 1500);
+                } else {
+                    unlock();
+                }
+            } else {
+                const status = document.getElementById('status');
+                const wrong = [];
+                if (!symOk) wrong.push('Kí hiệu');
+                if (!valOk) wrong.push('Hoá trị');
+                if (!massOk) wrong.push('NT khối');
+                status.textContent = `✗ Sai: ${wrong.join(', ')}. Thử lại!`;
+                status.className = 'status-msg error';
+
+                setTimeout(() => {
+                    ['symbol', 'valence', 'mass'].forEach(k => {
+                        inputs[k].classList.remove('wrong', 'correct');
+                    });
+                }, 1500);
+            }
+        }
+
+        function setFieldState(el, correct) {
+            el.classList.remove('correct', 'wrong');
+            void el.offsetWidth; // reflow for animation
+            el.classList.add(correct ? 'correct' : 'wrong');
+        }
+
+        function unlock() {
+            const status = document.getElementById('status');
+            status.textContent = '✓ Chính xác! Đang mở khóa...';
+            status.className = 'status-msg success';
+
+            // Update lock icon
+            document.querySelector('.lock-icon').textContent = '🔓';
+
+            setTimeout(() => {
+                const overlay = document.getElementById('successOverlay');
+                overlay.classList.add('show');
+
+                // Animate progress bar
+                setTimeout(() => {
+                    document.getElementById('progressFill').style.width = '100%';
+                }, 100);
+
+                // Redirect after 2s
+                setTimeout(() => {
+                    window.location.href = 'index1.html';
+                }, 2200);
+            }, 500);
+        }
+
+        // Initialize first level
+        window.onload = loadLevel;
+    </script>
+</body>
+
+</html>
